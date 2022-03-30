@@ -25,7 +25,8 @@ const podUrlInput = document.getElementById("PodURL");
 const statusText = document.getElementById("labelStatus");
 const buttonLogin = document.querySelector("#btnLogin");
 const buttonCreate = document.querySelector("#btnCreate");
-buttonCreate.disabled=true;
+buttonCreate.setAttribute("disabled", "disabled");
+
 const labelCreateStatus = document.querySelector("#labelCreateStatus");
 const availablePods = document.querySelector("#availablePods");
 
