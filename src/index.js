@@ -9,7 +9,7 @@ import {
   getThingAll,
   getStringNoLocale,
   removeThing,
-  FetchError
+  getPodUrlAll,
 } from "@inrupt/solid-client";
 
 import {
@@ -21,10 +21,13 @@ import {
 
 import { SCHEMA_INRUPT, RDF, AS } from "@inrupt/vocab-common-rdf";
 
+const podUrlInput = document.getElementById("PodURL");
+const statusText = document.getElementById("labelStatus");
 const buttonLogin = document.querySelector("#btnLogin");
 const buttonCreate = document.querySelector("#btnCreate");
 buttonCreate.disabled=true;
 const labelCreateStatus = document.querySelector("#labelCreateStatus");
+const availablePods = document.querySelector("#availablePods");
 
 // 1a. Start Login Process. Call login() function.
 function startLogin() {
@@ -41,15 +44,43 @@ function startLogin() {
 // When redirected after login, call handleIncomingRedirect() function to
 // finish the login process by retrieving session information.
 async function finishLogin() {
-    await handleIncomingRedirect();
-    const session = getDefaultSession();
-    if (session.info.isLoggedIn) {
+  await handleIncomingRedirect();
+  const session = getDefaultSession();
+  if (session.info.isLoggedIn) {
+    buttonLogin.setAttribute("disabled", "disabled");
+
+    try {
+      const pods = await getPodUrlAll(session.info.webId, {
+        // This isn't strictly needed, as the WebID must be a public resource,
+        // but for now it's safest to include it:
+        fetch: fetch,
+      });
+
+      const availablePodsList = document.createElement("ul");
+
+      pods.forEach((url) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = url;
+        availablePodsList.appendChild(listItem);
+      });
+
+      availablePods.appendChild(availablePodsList);
+      // Show the list:
+      availablePods.removeAttribute("style");
+
+      // Set the input value to the first pod found, if any, stripping the trailing slash:
+      podUrlInput.value = pods.length > 0 ? pods.at(0).replace(/\/$/, "") : "";
+
       // Update the page with the status.
-      document.getElementById("labelStatus").textContent = `Logged in with WebID ${session.info.webId}`;
-      document.getElementById("labelStatus").setAttribute("role", "alert");
+      statusText.textContent = `Logged in with WebID ${session.info.webId}`;
+      statusText.setAttribute("role", "alert");
       // Enable Create button
-      buttonCreate.disabled=false;
+      buttonCreate.removeAttribute("disabled");
+    } catch (err) {
+      console.error(err);
+      statusText.textContent = `Logged in, but failed to fetch pods for ${session.info.webId}`;
     }
+  }
 }
 
 // The example has the login redirect back to the index.html.
