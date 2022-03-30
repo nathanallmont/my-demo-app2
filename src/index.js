@@ -16,7 +16,7 @@ import {
   login,
   handleIncomingRedirect,
   getDefaultSession,
-  fetch
+  fetch,
 } from "@inrupt/solid-client-authn-browser";
 
 import { SCHEMA_INRUPT, RDF, AS } from "@inrupt/vocab-common-rdf";
@@ -33,11 +33,10 @@ const availablePods = document.querySelector("#availablePods");
 // 1a. Start Login Process. Call login() function.
 function startLogin() {
   return login({
-
     oidcIssuer: "https://broker.pod.inrupt.com",
 
     redirectUrl: window.location.href,
-    clientName: "Getting started app"
+    clientName: "Getting started app",
   });
 }
 
@@ -98,7 +97,7 @@ async function createList() {
   // For simplicity and brevity, this tutorial hardcodes the SolidDataset URL.
   // In practice, you should add a link to this resource in your profile that applications can follow.
   const readingListUrl = `${podUrl}/getting-started/readingList/myList`;
- 
+
   let titles = document.getElementById("titles").value.split("\n");
 
   // Fetch or create a new reading list.
@@ -109,8 +108,8 @@ async function createList() {
     myReadingList = await getSolidDataset(readingListUrl, { fetch: fetch });
     // Clear the list to override the whole list
     let titles = getThingAll(myReadingList);
-    titles.forEach(title => {
-     myReadingList = removeThing(myReadingList, title);
+    titles.forEach((title) => {
+      myReadingList = removeThing(myReadingList, title);
     });
   } catch (error) {
     if (typeof error.statusCode === "number" && error.statusCode === 404) {
@@ -123,15 +122,14 @@ async function createList() {
 
   // Add titles to the Dataset
   for (let i = 0; i < titles.length; i++) {
-    let title = createThing({name: "title" + i});
+    let title = createThing({ name: "title" + i });
     title = addUrl(title, RDF.type, AS.Article);
     title = addStringNoLocale(title, SCHEMA_INRUPT.name, titles[i]);
     myReadingList = setThing(myReadingList, title);
   }
 
   try {
-     
-    // Save the SolidDataset 
+    // Save the SolidDataset
     let savedReadingList = await saveSolidDatasetAt(
       readingListUrl,
       myReadingList,
@@ -141,34 +139,30 @@ async function createList() {
     labelCreateStatus.textContent = "Saved";
 
     // Refetch the Reading List
-    savedReadingList = await getSolidDataset(
-      readingListUrl,
-      { fetch: fetch }
-    );
+    savedReadingList = await getSolidDataset(readingListUrl, { fetch: fetch });
 
     let items = getThingAll(savedReadingList);
 
-    let listcontent="";
+    let listcontent = "";
     for (let i = 0; i < items.length; i++) {
       let item = getStringNoLocale(items[i], SCHEMA_INRUPT.name);
       if (item !== null) {
-          listcontent += item + "\n";
+        listcontent += item + "\n";
       }
     }
 
     document.getElementById("savedtitles").value = listcontent;
-
   } catch (error) {
     console.log(error);
     labelCreateStatus.textContent = "Error" + error;
     labelCreateStatus.setAttribute("role", "alert");
-  } 
+  }
 }
 
-buttonLogin.onclick = function() {  
+buttonLogin.onclick = function () {
   startLogin();
 };
 
-buttonCreate.onclick = function() {  
+buttonCreate.onclick = function () {
   createList();
 };
