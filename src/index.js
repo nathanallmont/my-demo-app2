@@ -92,8 +92,9 @@ finishLogin();
 // 2. Create the Reading List
 async function createList() {
   labelCreateStatus.textContent = "";
-  const podUrl = document.getElementById("PodURL").value;
- 
+  // Grab the PodURL and remove the trailing slash:
+  const podUrl = podUrlInput.value.replace(/\/$/, "");
+
   // For simplicity and brevity, this tutorial hardcodes the SolidDataset URL.
   // In practice, you should add a link to this resource in your profile that applications can follow.
   const readingListUrl = `${podUrl}/getting-started/readingList/myList`;
