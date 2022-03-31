@@ -15,6 +15,9 @@ module.exports = {
     ]
   },
   devServer: {
-    static: "./dist"
+    static: "./dist",
+    // disabled hot module replacement, as the code isn't actually setup to handle HMR properly
+    hot: false,
+    client: false,
   }
 };
